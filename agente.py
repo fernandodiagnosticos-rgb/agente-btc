@@ -32,7 +32,7 @@ def buscar_dados():
  df["SBUY"]=df["CUP"]&(df["WT2"]<=-60)
  df["SSELL"]=df["CDN"]&(df["WT2"]>=60)
  return df
-  def calcular_score(df):
+def calcular_score(df):
  score=0
  p=df["fechamento"].iloc[-1]
  ab=sum([p<df["EMA9"].iloc[-1],p<df["EMA21"].iloc[-1],p<df["EMA50"].iloc[-1],p<df["EMA200"].iloc[-1]])
