@@ -37,7 +37,7 @@ def buscar_dados(intervalo="15m",periodo="5d"):
     df["SBUY"]=df["CUP"]&(df["WT2"]<=-60)
     df["SSELL"]=df["CDN"]&(df["WT2"]>=60)
     return df
-    def calcular_score(df):
+def calcular_score(df):
     score=0
     p=df["fechamento"].iloc[-1]
     ab=sum([p<df["EMA9"].iloc[-1],p<df["EMA21"].iloc[-1],p<df["EMA50"].iloc[-1],p<df["EMA200"].iloc[-1]])
@@ -96,7 +96,7 @@ def analisar_multi_timeframe():
     else:
         print("SINAL:AGUARDAR")
     return score_final,scores,dados
-    def analisar_com_claude(scores,dados,score_final):
+def analisar_com_claude(scores,dados,score_final):
     df=dados["15m"]
     p=df["fechamento"].iloc[-1]
     prompt=f"Trader BTC multi-timeframe. Preco:{p:.2f} Score15m:{scores['15m']} Score1h:{scores['1h']} Score4h:{scores['4h']} Score1d:{scores['1d']} ScoreFinal:{score_final} RSI:{df['RSI'].iloc[-1]:.2f} MACD:{df['MACDh_12_26_9'].iloc[-1]:.2f} WT1:{df['WT1'].iloc[-1]:.2f} ATR:{df['ATR'].iloc[-1]:.2f} BBSup:{df['BBU_20_2.0_2.0'].iloc[-1]:.2f} BBInf:{df['BBL_20_2.0_2.0'].iloc[-1]:.2f}. Capital 1234 USDT 1x risco 1pct. Analise todos os timeframes e responda em portugues: 1.DECISAO 2.JUSTIFICATIVA 3.ENTRADA 4.STOP 5.ALVO1 6.ALVO2 7.RR"
