@@ -96,3 +96,29 @@ def analisar_multi_timeframe():
     else:
         print("SINAL:AGUARDAR")
     return score_final,scores,dados
+    def analisar_com_claude(scores,dados,score_final):
+    df=dados["15m"]
+    p=df["fechamento"].iloc[-1]
+    prompt=f"Trader BTC multi-timeframe. Preco:{p:.2f} Score15m:{scores['15m']} Score1h:{scores['1h']} Score4h:{scores['4h']} Score1d:{scores['1d']} ScoreFinal:{score_final} RSI:{df['RSI'].iloc[-1]:.2f} MACD:{df['MACDh_12_26_9'].iloc[-1]:.2f} WT1:{df['WT1'].iloc[-1]:.2f} ATR:{df['ATR'].iloc[-1]:.2f} BBSup:{df['BBU_20_2.0_2.0'].iloc[-1]:.2f} BBInf:{df['BBL_20_2.0_2.0'].iloc[-1]:.2f}. Capital 1234 USDT 1x risco 1pct. Analise todos os timeframes e responda em portugues: 1.DECISAO 2.JUSTIFICATIVA 3.ENTRADA 4.STOP 5.ALVO1 6.ALVO2 7.RR"
+    c=anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+    m=c.messages.create(model="claude-sonnet-4-6",max_tokens=1024,messages=[{"role":"user","content":prompt}])
+    resposta=m.content[0].text
+    print(resposta)
+    msg=f"SINAL BTC MULTI-TIMEFRAME\n15m:{scores['15m']} | 1h:{scores['1h']} | 4h:{scores['4h']} | 1d:{scores['1d']}\nFINAL:{score_final}\n\n{resposta[:3000]}"
+    enviar_telegram(msg)
+    return resposta
+def rodar_agente(ciclos=3,mins=1):
+    print("AGENTE INICIADO")
+    enviar_telegram("AGENTE BTC MULTI-TIMEFRAME INICIADO")
+    for i in range(ciclos):
+        print(f"CICLO {i+1}/{ciclos} - {time.strftime('%H:%M:%S')}")
+        score_final,scores,dados=analisar_multi_timeframe()
+        if abs(score_final)>=60:
+            analisar_com_claude(scores,dados,score_final)
+        else:
+            enviar_telegram(f"15m:{scores['15m']} | 1h:{scores['1h']} | 4h:{scores['4h']} | 1d:{scores['1d']}\nFinal:{score_final} - Aguardando...")
+        if i<ciclos-1:
+            time.sleep(mins*60)
+    print("AGENTE FINALIZADO")
+    enviar_telegram("AGENTE FINALIZADO")
+rodar_agente(ciclos=3,mins=1)
